@@ -4,7 +4,7 @@ using Serilog;
 using Serilog.Extensions.Logging;
 using System.IO;
 
-namespace Shuxi
+namespace Shuxi.UI
 {
     internal class Setup : MvxWpfSetup<Core.App>
     {

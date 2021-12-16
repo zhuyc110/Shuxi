@@ -3,7 +3,7 @@ using MvvmCross.Platforms.Wpf.Views;
 using MvvmCross.ViewModels;
 using Shuxi.Core.ViewModels;
 
-namespace Shuxi.Views
+namespace Shuxi.UI.Views
 {
     /// <summary>
     /// Interaction logic for MainPageView.xaml

@@ -1,7 +1,7 @@
 ﻿using MvvmCross.Core;
 using MvvmCross.Platforms.Wpf.Views;
 
-namespace Shuxi
+namespace Shuxi.UI
 {
     /// <summary>
     /// Interaction logic for App.xaml
