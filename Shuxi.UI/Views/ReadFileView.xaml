@@ -1,0 +1,26 @@
+﻿<views:MvxWindow x:Class="Shuxi.UI.Views.ReadFileView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+        xmlns:viewmodels="clr-namespace:Shuxi.Core.ViewModels;assembly=Shuxi.Core" 
+        d:DataContext="{d:DesignInstance Type=viewmodels:ReadFileViewModel}"
+        mc:Ignorable="d"
+        Title="读入文件" Height="200" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Margin="10" >
+            <TextBlock Text="{Binding Path=Path}" Grid.Row="0" VerticalAlignment="Center" ></TextBlock>
+            <ProgressBar Height="20" Value="{Binding Progress}" >
+            </ProgressBar>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Button MinWidth="80" Margin="10" Command="{Binding Path=OpenFileCommand}" VerticalAlignment="Center">选择</Button>
+            <Button MinWidth="80" Margin="10" Command="{Binding Path=ReadCommand}" VerticalAlignment="Center">读取</Button>
+        </StackPanel>
+    </Grid>
+</views:MvxWindow>

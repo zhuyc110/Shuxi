@@ -19,6 +19,8 @@ namespace DAL.Repository
         public void Add(IEnumerable<DicomInfoData> dicomInfoDatas)
         {
             _context.DicomInfoDatas.AddRange(dicomInfoDatas);
+
+            _context.SaveChanges();
         }
 
         public IReadOnlyCollection<DicomInfoData> GetAll()

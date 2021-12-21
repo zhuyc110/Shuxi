@@ -1,8 +1,8 @@
 ﻿using DAL.Model;
 using DAL.Repository;
 using MvvmCross.Commands;
+using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -51,11 +51,23 @@ namespace Shuxi.Core.ViewModels
         //    _data = new MvxObservableCollection<DicomInfoData>(testData);
         //}
 
-        public MainPageViewModel(IDicomInfoDataRepository dicomInfoDataRepository)
+        public MainPageViewModel(
+            IDicomInfoDataRepository dicomInfoDataRepository,
+            IMvxNavigationService navigationService)
         {
             _dicomInfoDataRepository = dicomInfoDataRepository;
+            _navigationService = navigationService;
             SearchCommand = new MvxAsyncCommand(Search);
             _data = new MvxObservableCollection<DicomInfoData>(_dicomInfoDataRepository.GetAll());
+        }
+
+        public override async Task Initialize()
+        {
+            if (Data.Count == 0)
+            {
+                await _navigationService.Navigate<ReadFileViewModel>().ConfigureAwait(false);
+                _data = new MvxObservableCollection<DicomInfoData>(_dicomInfoDataRepository.GetAll());
+            }
         }
 
         private async Task Search()
@@ -64,6 +76,7 @@ namespace Shuxi.Core.ViewModels
         }
 
         private readonly IDicomInfoDataRepository? _dicomInfoDataRepository;
+        private readonly IMvxNavigationService _navigationService;
         private string? _name;
         private string? _sex;
         private ObservableCollection<DicomInfoData> _data;

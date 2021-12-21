@@ -6,7 +6,7 @@ using EvilDICOM.Core.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Linq;
 
 namespace Shuxi.Core.Services
 {
@@ -14,10 +14,21 @@ namespace Shuxi.Core.Services
     {
         public DicomReader(IDicomInfoDataRepository dicomInfoDataRepository)
         {
-            this._dicomInfoDataRepository = dicomInfoDataRepository;
+            _dicomInfoDataRepository = dicomInfoDataRepository;
         }
 
-        public int ReadFiles(string directory)
+        public int PrepareProgress(string directory)
+        {
+            if (!Directory.Exists(directory))
+            {
+                return 0;
+            }
+            var directoryInfo = new DirectoryInfo(directory);
+
+            return directoryInfo.GetFiles("*.dcm").Count();
+        }
+
+        public int ReadFiles(string directory, IProgress<int> progress)
         {
             if (!Directory.Exists(directory))
             {
@@ -26,11 +37,12 @@ namespace Shuxi.Core.Services
 
             var directoryInfo = new DirectoryInfo(directory);
 
-            var files = directoryInfo.GetFiles("*.dcm");
+            var files = directoryInfo.GetFiles("*.dcm").ToList();
 
             var dicoms = new List<DicomInfoData>();
-            foreach (var fileInfo in files)
+            for (var index = 0; index < files.Count; index++)
             {
+                var fileInfo = files[index];
                 var dcm = DICOMObject.Read(fileInfo.FullName);
                 var patientName = dcm.FindFirst(TagHelper.PatientName) as AbstractElement<string>;
                 var studyInstanceNo = dcm.FindFirst(TagHelper.StudyInstanceUID) as AbstractElement<string>;
@@ -40,15 +52,21 @@ namespace Shuxi.Core.Services
 
                 var one = new DicomInfoData
                 {
+#if DEBUG
+                    PatientName = "ZHANG " + index,
+                    StudyInstanceId = studyInstanceNo?.Data + index,
+#else
                     PatientName = patientName?.Data,
                     StudyInstanceId = studyInstanceNo?.Data,
-                    PatientSex = patientSex?.Data,
+#endif
+                    PatientSex = patientSex?.Data ?? "男",
                     PatientAge = patientAge?.Data,
                     StatyDate = studyDate?.GetDataOrDefault(),
                     FileName = fileInfo.FullName
                 };
 
                 dicoms.Add(one);
+                progress.Report(dicoms.Count);
             }
 
             _dicomInfoDataRepository.Add(dicoms);
