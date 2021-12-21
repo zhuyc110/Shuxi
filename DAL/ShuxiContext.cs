@@ -10,6 +10,7 @@ namespace DAL
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<DicomInfoData>().ToTable(nameof(DicomInfoData)).HasKey(x => x.StudyInstanceId);
+            modelBuilder.Entity<DicomInfoData>().HasIndex(b => b.PatientName);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

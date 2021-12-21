@@ -18,8 +18,7 @@ namespace DAL.Model
         [Required]
         public string PatientAge { get; set; }
 
-        [Required]
-        public DateTime StatyDate { get; set; }
+        public DateTime? StatyDate { get; set; }
 
         [Required]
         public string FileName { get; set; }

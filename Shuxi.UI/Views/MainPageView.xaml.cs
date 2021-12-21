@@ -2,6 +2,7 @@
 using MvvmCross.Platforms.Wpf.Views;
 using MvvmCross.ViewModels;
 using Shuxi.Core.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace Shuxi.UI.Views
 {
@@ -15,6 +16,16 @@ namespace Shuxi.UI.Views
         public MainPageView()
         {
             InitializeComponent();
+        }
+    }
+
+    public class SexSource : ObservableCollection<string>
+    {
+        public SexSource()
+        {
+
+            Add("男");
+            Add("女");
         }
     }
 }

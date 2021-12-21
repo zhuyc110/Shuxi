@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using DAL.Model;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DAL.Repository
 {
@@ -12,6 +14,16 @@ namespace DAL.Repository
         public int Count()
         {
             return _context.DicomInfoDatas.Count();
+        }
+
+        public void Add(IEnumerable<DicomInfoData> dicomInfoDatas)
+        {
+            _context.DicomInfoDatas.AddRange(dicomInfoDatas);
+        }
+
+        public IReadOnlyCollection<DicomInfoData> GetAll()
+        {
+            return _context.DicomInfoDatas.ToList();
         }
 
         private readonly ShuxiContext _context;

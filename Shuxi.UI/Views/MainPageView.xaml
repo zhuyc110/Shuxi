@@ -3,9 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-	         xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"      
+	         xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+             xmlns:viewModel="clr-namespace:Shuxi.Core.ViewModels;assembly=Shuxi.Core"
+             xmlns:local="clr-namespace:Shuxi.UI.Views"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance viewModel:MainPageViewModel, IsDesignTimeCreatable=True}"
              d:DesignHeight="450" d:DesignWidth="800">
+
+    <views:MvxWpfView.Resources>
+        <local:SexSource x:Key="sexSource"/>
+    </views:MvxWpfView.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -13,8 +20,40 @@
             <RowDefinition Height="3*"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <ListView Grid.Row="1"></ListView>
+            <StackPanel Grid.Column="0" Margin="20">
+                <Label HorizontalAlignment="Left" VerticalAlignment="Center">姓名</Label>
+                <TextBox Height="30" Text="{Binding Path=Name}"></TextBox>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Margin="20">
+                <Label HorizontalAlignment="Left" VerticalAlignment="Center">性别</Label>
+                <ComboBox MinWidth="120"  HorizontalAlignment="Center" VerticalAlignment="Center"
+                      ItemsSource="{StaticResource sexSource}" SelectedValue="{Binding Path=Sex}">
+                </ComboBox>
+            </StackPanel>
+
+            <Button Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="50" MinHeight="50"
+                    Command="{Binding Path=SearchCommand}">搜索</Button>
+        </Grid>
+
+        <ListView Grid.Row="1" ItemsSource="{Binding Path=Data}">
+            <ListView.View>
+                <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Patient Information">
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=StudyInstanceId}"  Header="Id" Width="100"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=PatientName}"  Header="名字" Width="100"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=PatientSex}"  Header="性别" Width="100"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=PatientAge}"  Header="年龄" Width="100"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=FileName}"  Header="文件名" Width="200"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
 
         <Label Grid.Row="2" HorizontalAlignment="Right">Today is also a good sky.</Label>
     </Grid>

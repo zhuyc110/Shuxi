@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MvvmCross;
 using MvvmCross.IoC;
 using MvvmCross.ViewModels;
+using Shuxi.Core.Services;
 using Shuxi.Core.ViewModels;
 using System;
 
@@ -40,6 +41,11 @@ namespace Shuxi.Core
         {
             typeof(ShuxiContext).Assembly.CreatableTypes()
                 .EndingWith("Repository")
+                .AsInterfaces()
+                .RegisterAsLazySingleton();
+
+            typeof(DicomReader).Assembly.CreatableTypes()
+                .EndingWith("Reader")
                 .AsInterfaces()
                 .RegisterAsLazySingleton();
         }
