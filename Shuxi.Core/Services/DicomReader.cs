@@ -1,8 +1,6 @@
 ﻿using DAL.Model;
 using DAL.Repository;
-using EvilDICOM.Core;
-using EvilDICOM.Core.Element;
-using EvilDICOM.Core.Helpers;
+using FellowOakDicom;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,7 +23,7 @@ namespace Shuxi.Core.Services
             }
             var directoryInfo = new DirectoryInfo(directory);
 
-            return directoryInfo.GetFiles("*.dcm").Count();
+            return directoryInfo.GetFiles("*.dcm", SearchOption.AllDirectories).Count();
         }
 
         public int ReadFiles(string directory, IProgress<int> progress)
@@ -37,32 +35,27 @@ namespace Shuxi.Core.Services
 
             var directoryInfo = new DirectoryInfo(directory);
 
-            var files = directoryInfo.GetFiles("*.dcm").ToList();
+            var files = directoryInfo.GetFiles("*.dcm", SearchOption.AllDirectories).ToList();
 
             var dicoms = new List<DicomInfoData>();
             for (var index = 0; index < files.Count; index++)
             {
                 var fileInfo = files[index];
-                var dcm = DICOMObject.Read(fileInfo.FullName);
-                var patientName = dcm.FindFirst(TagHelper.PatientName) as AbstractElement<string>;
-                var studyInstanceNo = dcm.FindFirst(TagHelper.StudyInstanceUID) as AbstractElement<string>;
-                var patientSex = dcm.FindFirst(TagHelper.PatientSex) as AbstractElement<string>;
-                var patientAge = dcm.FindFirst(TagHelper.PatientAge) as AbstractElement<string>;
-                var studyDate = dcm.FindFirst(TagHelper.StudyDate) as AbstractElement<System.DateTime>;
+                var dcm = DicomFile.Open(fileInfo.FullName);
+                var performedProcedureStepID = dcm.Dataset.GetString(DicomTag.PerformedProcedureStepID);
+                var operatorsName = dcm.Dataset.GetString(DicomTag.OperatorsName);
+                var patientBirthDate = dcm.Dataset.GetDateTime(DicomTag.PatientBirthDate, DicomTag.PatientBirthTime);
+                var performingPhysicansName = dcm.Dataset.GetString(DicomTag.PerformingPhysicianName);
+                var procedureDate = dcm.Dataset.GetDateTime(DicomTag.PerformedProcedureStepStartDate, DicomTag.PerformedProcedureStepStartDateTime);
 
                 var one = new DicomInfoData
                 {
-#if DEBUG
-                    PatientName = "ZHANG " + index,
-                    StudyInstanceId = studyInstanceNo?.Data + index,
-#else
-                    PatientName = patientName?.Data,
-                    StudyInstanceId = studyInstanceNo?.Data,
-#endif
-                    PatientSex = patientSex?.Data ?? "男",
-                    PatientAge = patientAge?.Data,
-                    StatyDate = studyDate?.GetDataOrDefault(),
-                    FileName = fileInfo.FullName
+                    PerformedProcedureStepID = performedProcedureStepID,
+                    OperatorsName = operatorsName,
+                    PatientBirthDate = patientBirthDate,
+                    PerformingPhysicansName = performingPhysicansName,
+                    PerformedProcedureStepStartDate = procedureDate,
+                    FileName = fileInfo.Name
                 };
 
                 dicoms.Add(one);

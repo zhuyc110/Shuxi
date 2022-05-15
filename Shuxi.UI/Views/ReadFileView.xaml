@@ -14,6 +14,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <StackPanel Margin="10" >
+            <Label>将读入目标文件夹及子目录下所有DCM文件</Label>
             <TextBlock Text="{Binding Path=Path}" Grid.Row="0" VerticalAlignment="Center" ></TextBlock>
             <ProgressBar Height="20" Value="{Binding Progress}" >
             </ProgressBar>
@@ -21,6 +22,7 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal">
             <Button MinWidth="80" Margin="10" Command="{Binding Path=OpenFileCommand}" VerticalAlignment="Center">选择</Button>
             <Button MinWidth="80" Margin="10" Command="{Binding Path=ReadCommand}" VerticalAlignment="Center">读取</Button>
+            <Button MinWidth="80" Margin="90,10" Command="{Binding Path=DeleteCommand}" VerticalAlignment="Center" Background="White">清除</Button>
         </StackPanel>
     </Grid>
 </views:MvxWindow>

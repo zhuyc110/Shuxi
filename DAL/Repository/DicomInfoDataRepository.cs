@@ -23,9 +23,16 @@ namespace DAL.Repository
             _context.SaveChanges();
         }
 
-        public IReadOnlyCollection<DicomInfoData> GetAll()
+        public IQueryable<DicomInfoData> GetAll()
         {
-            return _context.DicomInfoDatas.ToList();
+            return _context.DicomInfoDatas;
+        }
+
+        public void Clear()
+        {
+            _context.DicomInfoDatas.RemoveRange(_context.DicomInfoDatas);
+
+            _context.SaveChanges();
         }
 
         private readonly ShuxiContext _context;

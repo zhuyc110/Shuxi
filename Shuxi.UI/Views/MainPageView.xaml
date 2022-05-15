@@ -8,7 +8,7 @@
              xmlns:local="clr-namespace:Shuxi.UI.Views"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewModel:MainPageViewModel, IsDesignTimeCreatable=True}"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="650" d:DesignWidth="800">
 
     <views:MvxWpfView.Resources>
         <local:SexSource x:Key="sexSource"/>
@@ -17,6 +17,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="0.5*"></RowDefinition>
             <RowDefinition Height="3*"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
@@ -27,34 +28,58 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Margin="20">
-                <Label HorizontalAlignment="Left" VerticalAlignment="Center">姓名</Label>
-                <TextBox Height="30" Text="{Binding Path=Name}"></TextBox>
+            <StackPanel Grid.Column="1" Margin="20">
+                <Label HorizontalAlignment="Left" VerticalAlignment="Center">值</Label>
+                <TextBox Height="20" Text="{Binding Path=ConditionValue}" ></TextBox>
             </StackPanel>
 
-            <StackPanel Grid.Column="1" Margin="20">
-                <Label HorizontalAlignment="Left" VerticalAlignment="Center">性别</Label>
+            <StackPanel Grid.Column="0" Margin="20">
+                <Label HorizontalAlignment="Left" VerticalAlignment="Center">条件</Label>
                 <ComboBox MinWidth="120"  HorizontalAlignment="Center" VerticalAlignment="Center"
-                      ItemsSource="{StaticResource sexSource}" SelectedValue="{Binding Path=Sex}">
+                      ItemsSource="{Binding ConditionSource}" SelectedValue="{Binding Path=CurrentCondition}">
                 </ComboBox>
             </StackPanel>
 
+            <Button Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="50" MinHeight="50" Margin="10"
+                    Command="{Binding Path=AddConditionCommand}">增加条件</Button>
+
             <Button Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="50" MinHeight="50"
-                    Command="{Binding Path=SearchCommand}">搜索</Button>
+                    Command="{Binding Path=SearchCommand}">重置条件</Button>
+
+            <Button Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="50" MinHeight="50" Margin="10"
+                    Command="{Binding Path=ResetCommand}">重设数据源</Button>
         </Grid>
 
-        <ListView Grid.Row="1" ItemsSource="{Binding Path=Data}">
+        <ListView Grid.Row="1" ItemsSource="{Binding Path=Conditions}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding DisplayValue}"></TextBlock>
+                        <Button Command="{Binding RelativeSource={RelativeSource AncestorType=ListView}, Path=DataContext.ClearConditionCommand}"
+                                CommandParameter="{Binding}">x</Button>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <ListView Grid.Row="2" ItemsSource="{Binding Path=FilteredData}">
             <ListView.View>
-                <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Patient Information">
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=StudyInstanceId}"  Header="Id" Width="100"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=PatientName}"  Header="名字" Width="100"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=PatientSex}"  Header="性别" Width="100"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=PatientAge}"  Header="年龄" Width="100"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=FileName}"  Header="文件名" Width="200"/>
+                <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="DICOM Information">
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=PerformedProcedureStepID}"  Header="Performed Procedure Step ID"  Width="180"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=OperatorsName}" Header="Operators' Name" Width="auto"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=PatientBirthDate, StringFormat={}{0:yyyy/MM/dd}}"  Header="Patient Birth Date" Width="auto"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=PerformingPhysicansName}"  Header="Performing Physicans' Name" Width="180"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=PerformedProcedureStepStartDate, StringFormat={}{0:yyyy/MM/dd}}"  Header="Performed Procedure Step Start Date" Width="auto"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=FileName}" Header="File name"  Width="auto"/>
                 </GridView>
             </ListView.View>
         </ListView>
 
-        <Label Grid.Row="2" HorizontalAlignment="Right">Today is also a good sky.</Label>
+        <Label Grid.Row="3" HorizontalAlignment="Right">Today is also a good sky.</Label>
     </Grid>
 </views:MvxWpfView>

@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using DAL.Repository;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
@@ -36,16 +37,24 @@ namespace Shuxi.Core.ViewModels
             get; private set;
         }
 
-        public ReadFileViewModel(IDicomReader dicomReader, IMvxNavigationService mvxNavigationService)
+        public ICommand DeleteCommand
+        {
+            get; private set;
+        }
+
+        public ReadFileViewModel(IDicomReader dicomReader, IMvxNavigationService mvxNavigationService, IDicomInfoDataRepository dicomInfoDataRepository)
         {
             _dicomReader = dicomReader;
             _mvxNavigationService = mvxNavigationService;
-            OpenFileCommand = new MvxCommand(OpenFile);
+            _dicomInfoDataRepository = dicomInfoDataRepository;
+            OpenFileCommand = new MvxCommand(SelectFolder);
             ReadCommand = new MvxAsyncCommand(Read, () => !string.IsNullOrWhiteSpace(Path));
+            DeleteCommand = new MvxCommand(DeleteAll);
         }
 
-        private void OpenFile()
+        private void SelectFolder()
         {
+            _dicomInfoDataRepository.Clear();
             var openFileDialog = new CommonOpenFileDialog()
             {
                 Title = "Select a folder",
@@ -71,8 +80,14 @@ namespace Shuxi.Core.ViewModels
             }).ConfigureAwait(false);
         }
 
+        private void DeleteAll()
+        {
+            _dicomInfoDataRepository.Clear();
+        }
+
         private readonly IDicomReader _dicomReader;
         private readonly IMvxNavigationService _mvxNavigationService;
+        private readonly IDicomInfoDataRepository _dicomInfoDataRepository;
         private string _path = string.Empty;
         private int _progress = 0;
         private int _totalProgress = 100;

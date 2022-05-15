@@ -1,5 +1,6 @@
 ﻿using DAL.Model;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DAL.Repository
 {
@@ -7,8 +8,10 @@ namespace DAL.Repository
     {
         int Count();
 
+        void Clear();
+
         void Add(IEnumerable<DicomInfoData> dicomInfoDatas);
 
-        IReadOnlyCollection<DicomInfoData> GetAll();
+        IQueryable<DicomInfoData> GetAll();
     }
 }
