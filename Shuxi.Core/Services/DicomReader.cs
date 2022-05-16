@@ -40,26 +40,22 @@ namespace Shuxi.Core.Services
 
             var dicoms = new List<DicomInfoData>();
             var failedDicomsCount = 0;
+
+            _logger.LogInformation($"Starts reading DICOM files from {directoryInfo.Name}.");
             foreach (var fileInfo in files)
             {
                 try
                 {
-                    var dcm = DicomFile.Open(fileInfo.FullName);
+                    var dcm = DicomFile.Open(fileInfo.FullName, FileReadOption.SkipLargeTags);
                     dcm.Dataset.TryGetString(DicomTag.PerformedProcedureStepID, out var performedProcedureStepID);
                     EnsureValue(ref performedProcedureStepID);
-                    dcm.Dataset.TryGetString(DicomTag.OperatorsName, out var operatorsName);
-                    EnsureValue(ref operatorsName);
                     var patientBirthDate = dcm.Dataset.GetDateTime(DicomTag.PatientBirthDate, DicomTag.PatientBirthTime);
-                    dcm.Dataset.TryGetString(DicomTag.PerformingPhysicianName, out var performingPhysicansName);
-                    EnsureValue(ref performingPhysicansName);
                     var procedureDate = dcm.Dataset.GetDateTime(DicomTag.PerformedProcedureStepStartDate, DicomTag.PerformedProcedureStepStartDateTime);
 
                     var one = new DicomInfoData
                     {
                         PerformedProcedureStepID = performedProcedureStepID,
-                        OperatorsName = operatorsName,
                         PatientBirthDate = patientBirthDate,
-                        PerformingPhysicansName = performingPhysicansName,
                         PerformedProcedureStepStartDate = procedureDate,
                         FileName = fileInfo.Name
                     };
@@ -84,6 +80,7 @@ namespace Shuxi.Core.Services
 
             if (dicoms.Any())
             {
+                _logger.LogInformation($"{dicoms.Count} DICOM files have been read.");
                 _dicomInfoDataRepository.Add(dicoms);
             }
 

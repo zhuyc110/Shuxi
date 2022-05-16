@@ -11,11 +11,7 @@ namespace DAL.Model
 
         public string PerformedProcedureStepID { get; set; }
 
-        public string OperatorsName { get; set; }
-
         public DateTime PatientBirthDate { get; set; }
-
-        public string PerformingPhysicansName { get; set; }
 
         public DateTime PerformedProcedureStepStartDate { get; set; }
 

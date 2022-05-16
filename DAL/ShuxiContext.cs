@@ -12,8 +12,6 @@ namespace DAL
             modelBuilder.Entity<DicomInfoData>().ToTable(nameof(DicomInfoData)).HasKey(x => x.ID);
             modelBuilder.Entity<DicomInfoData>().Property(e => e.ID).ValueGeneratedOnAdd();
             modelBuilder.Entity<DicomInfoData>().HasIndex(b => b.PerformedProcedureStepID);
-            modelBuilder.Entity<DicomInfoData>().HasIndex(b => b.OperatorsName);
-            modelBuilder.Entity<DicomInfoData>().HasIndex(b => b.PerformingPhysicansName);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -71,9 +71,7 @@
             <ListView.View>
                 <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="DICOM Information">
                     <GridViewColumn DisplayMemberBinding="{Binding Path=PerformedProcedureStepID}"  Header="Performed Procedure Step ID"  Width="180"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=OperatorsName}" Header="Operators' Name" Width="auto"/>
                     <GridViewColumn DisplayMemberBinding="{Binding Path=PatientBirthDate, StringFormat={}{0:yyyy/MM/dd}}"  Header="Patient Birth Date" Width="auto"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=PerformingPhysicansName}"  Header="Performing Physicans' Name" Width="180"/>
                     <GridViewColumn DisplayMemberBinding="{Binding Path=PerformedProcedureStepStartDate, StringFormat={}{0:yyyy/MM/dd}}"  Header="Performed Procedure Step Start Date" Width="auto"/>
                     <GridViewColumn DisplayMemberBinding="{Binding Path=FileName}" Header="File name"  Width="auto"/>
                 </GridView>

@@ -3,14 +3,14 @@ using DAL.Repository;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Data;
-using System.ComponentModel;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Data;
+using System.Windows.Input;
 
 namespace Shuxi.Core.ViewModels
 {
@@ -88,9 +88,7 @@ namespace Shuxi.Core.ViewModels
             IMvxNavigationService navigationService)
         {
             _conditionSource.Add(nameof(DicomInfoData.PerformedProcedureStepID), PerformedProcedureStepIDFilter);
-            _conditionSource.Add(nameof(DicomInfoData.OperatorsName), OperatorsNameFilter);
             _conditionSource.Add(nameof(DicomInfoData.PatientBirthDate), PatientBirthDateFilter);
-            _conditionSource.Add(nameof(DicomInfoData.PerformingPhysicansName), PerformingPhysicansNameFilter);
             _conditionSource.Add(nameof(DicomInfoData.PerformedProcedureStepStartDate), PerformedProcedureStepStartDateFilter);
 
             _dicomInfoDataRepository = dicomInfoDataRepository;
@@ -178,19 +176,9 @@ namespace Shuxi.Core.ViewModels
             return x => (x as DicomInfoData).PerformedProcedureStepID.Contains(value, StringComparison.OrdinalIgnoreCase);
         }
 
-        private Predicate<object> OperatorsNameFilter(string value)
-        {
-            return x => (x as DicomInfoData).OperatorsName.Contains(value, StringComparison.OrdinalIgnoreCase);
-        }
-
         private Predicate<object> PatientBirthDateFilter(string value)
         {
             return x => (x as DicomInfoData).PatientBirthDate.ToShortDateString().Contains(value, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private Predicate<object> PerformingPhysicansNameFilter(string value)
-        {
-            return x => (x as DicomInfoData).PerformingPhysicansName.Contains(value, StringComparison.OrdinalIgnoreCase);
         }
 
         private Predicate<object> PerformedProcedureStepStartDateFilter(string value)

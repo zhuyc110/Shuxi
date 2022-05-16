@@ -26,7 +26,7 @@ namespace Shuxi.UI
                         .File(
                             logPath,
                             rollingInterval: RollingInterval.Day,
-                            outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u4}] {Message} <{SourceContext}>{NewLine}{Exception}",
+                            outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u4}] {Message} <{SourceContext}>{NewLine}{Exception}",
                             rollOnFileSizeLimit: true,
                             fileSizeLimitBytes: 2097152
                         ))
