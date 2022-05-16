@@ -35,12 +35,11 @@ namespace Shuxi.Core.Services
 
             var directoryInfo = new DirectoryInfo(directory);
 
-            var files = directoryInfo.GetFiles("*.dcm", SearchOption.AllDirectories).ToList();
+            var files = directoryInfo.EnumerateFiles("*.dcm", SearchOption.AllDirectories);
 
             var dicoms = new List<DicomInfoData>();
-            for (var index = 0; index < files.Count; index++)
+            foreach (var fileInfo in files)
             {
-                var fileInfo = files[index];
                 var dcm = DicomFile.Open(fileInfo.FullName);
                 var performedProcedureStepID = dcm.Dataset.GetString(DicomTag.PerformedProcedureStepID);
                 var operatorsName = dcm.Dataset.GetString(DicomTag.OperatorsName);
@@ -60,9 +59,18 @@ namespace Shuxi.Core.Services
 
                 dicoms.Add(one);
                 progress.Report(dicoms.Count);
+
+                if (dicoms.Count > 1000)
+                {
+                    _dicomInfoDataRepository.Add(dicoms);
+                    dicoms.Clear();
+                }
             }
 
-            _dicomInfoDataRepository.Add(dicoms);
+            if (dicoms.Any())
+            {
+                _dicomInfoDataRepository.Add(dicoms);
+            }
             return dicoms.Count;
         }
 
