@@ -9,19 +9,14 @@ namespace DAL.Model
         [Key]
         public string ID { get; set; }
 
-        [Required]
         public string PerformedProcedureStepID { get; set; }
 
-        [Required]
         public string OperatorsName { get; set; }
 
-        [Required]
         public DateTime PatientBirthDate { get; set; }
 
-        [Required]
         public string PerformingPhysicansName { get; set; }
 
-        [Required]
         public DateTime PerformedProcedureStepStartDate { get; set; }
 
         [Required]

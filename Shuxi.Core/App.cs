@@ -6,6 +6,8 @@ using MvvmCross.ViewModels;
 using Shuxi.Core.Services;
 using Shuxi.Core.ViewModels;
 using System;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace Shuxi.Core
 {
@@ -14,6 +16,8 @@ namespace Shuxi.Core
         public override void Initialize()
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
+
+            TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
             RegisterAppStart<MainPageViewModel>();
 
@@ -24,16 +28,37 @@ namespace Shuxi.Core
             ConfigureDataBase();
         }
 
+        private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+        {
+            ShowCloseDialog(e.Exception);
+        }
+
         private void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var exception = e.ExceptionObject as Exception;
+
             if (e.IsTerminating)
             {
                 _logger.LogError(exception, "Unhanded exception occurred, application will be terminated.");
+                ShowCloseDialog(exception);
             }
             else
             {
                 _logger.LogWarning(exception, "Unhanded exception occurred application will ignore it.");
+            }
+        }
+
+        private void ShowCloseDialog(Exception exception)
+        {
+            var messageBoxTitle = $"Unexpected Error Occurred: {exception.GetType()}";
+            var messageBoxMessage = $"The following exception occurred:\n\n{exception}";
+
+            messageBoxMessage += "\n\nNormally the app would die now. Close it?";
+            var messageBoxButtons = MessageBoxButton.YesNo;
+            // Let the user decide if the app should die or not (if applicable).
+            if (MessageBox.Show(messageBoxMessage, messageBoxTitle, messageBoxButtons) == MessageBoxResult.Yes)
+            {
+                Application.Current.Shutdown();
             }
         }
 

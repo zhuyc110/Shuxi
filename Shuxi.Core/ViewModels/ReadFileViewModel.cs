@@ -64,7 +64,8 @@ namespace Shuxi.Core.ViewModels
             if (openFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 Path = openFileDialog.FileName;
-                TotalProgress = _dicomReader.PrepareProgress(Path);
+                //TotalProgress = _dicomReader.PrepareProgress(Path);
+                TotalProgress = 1000;
                 ReadCommand.RaiseCanExecuteChanged();
             }
         }
@@ -73,11 +74,20 @@ namespace Shuxi.Core.ViewModels
         {
             await Task.Run(() =>
             {
-                var progress = new Progress<int>(x => Progress = x);
+                var progress = new Progress<int>(ProgressHandle);
                 _dicomReader.ReadFiles(Path, progress);
                 _mvxNavigationService.Close(this);
 
             }).ConfigureAwait(false);
+        }
+
+        private void ProgressHandle(int progress)
+        {
+            if (progress >= TotalProgress)
+            {
+                TotalProgress += 1000;
+            }
+            Progress = progress;
         }
 
         private void DeleteAll()

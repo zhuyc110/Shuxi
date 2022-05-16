@@ -100,7 +100,7 @@ namespace Shuxi.Core.ViewModels
             SearchCommand = new MvxCommand(ResetCondition);
             ResetCommand = new MvxAsyncCommand(GoToResetPage);
             ClearConditionCommand = new MvxCommand<Condition>(ClearCondition);
-            ReadDicomFils();
+            ReadDicomFiles();
             Conditions = new ObservableCollection<Condition>();
         }
 
@@ -109,7 +109,7 @@ namespace Shuxi.Core.ViewModels
             if (Data.Count == 0)
             {
                 await GoToResetPage().ConfigureAwait(false);
-                ReadDicomFils();
+                ReadDicomFiles();
             }
         }
 
@@ -119,7 +119,7 @@ namespace Shuxi.Core.ViewModels
             base.ViewDestroy(viewFinishing);
         }
 
-        private void ReadDicomFils()
+        private void ReadDicomFiles()
         {
             Data = new MvxObservableCollection<DicomInfoData>(_dicomInfoDataRepository.GetAll());
             FilteredData = CollectionViewSource.GetDefaultView(Data);
@@ -127,14 +127,17 @@ namespace Shuxi.Core.ViewModels
 
         private void OnDataChanged(object? sender, EventArgs e)
         {
-            ReadDicomFils();
+            ReadDicomFiles();
         }
 
         private void AddCondition()
         {
             var condition = new Condition(CurrentCondition, ConditionValue, _conditionSource[CurrentCondition]);
             var existingCondition = Conditions.FirstOrDefault(x => x.PropertyName == condition.PropertyName);
-            Conditions.Remove(existingCondition);
+            if (existingCondition != null)
+            {
+                Conditions.Remove(existingCondition);
+            }
             Conditions.Add(condition);
             FilteredData.Filter = BuildFilter();
         }
@@ -172,27 +175,27 @@ namespace Shuxi.Core.ViewModels
 
         private Predicate<object> PerformedProcedureStepIDFilter(string value)
         {
-            return x => (x as DicomInfoData).PerformedProcedureStepID.Contains(value);
+            return x => (x as DicomInfoData).PerformedProcedureStepID.Contains(value, StringComparison.OrdinalIgnoreCase);
         }
 
         private Predicate<object> OperatorsNameFilter(string value)
         {
-            return x => (x as DicomInfoData).OperatorsName.Contains(value);
+            return x => (x as DicomInfoData).OperatorsName.Contains(value, StringComparison.OrdinalIgnoreCase);
         }
 
         private Predicate<object> PatientBirthDateFilter(string value)
         {
-            return x => (x as DicomInfoData).PatientBirthDate.ToShortDateString().Contains(value);
+            return x => (x as DicomInfoData).PatientBirthDate.ToShortDateString().Contains(value, StringComparison.OrdinalIgnoreCase);
         }
 
         private Predicate<object> PerformingPhysicansNameFilter(string value)
         {
-            return x => (x as DicomInfoData).PerformingPhysicansName.Contains(value);
+            return x => (x as DicomInfoData).PerformingPhysicansName.Contains(value, StringComparison.OrdinalIgnoreCase);
         }
 
         private Predicate<object> PerformedProcedureStepStartDateFilter(string value)
         {
-            return x => (x as DicomInfoData).PerformedProcedureStepStartDate.ToShortDateString().Contains(value);
+            return x => (x as DicomInfoData).PerformedProcedureStepStartDate.ToShortDateString().Contains(value, StringComparison.OrdinalIgnoreCase);
         }
 
         #endregion
