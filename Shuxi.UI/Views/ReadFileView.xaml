@@ -18,6 +18,7 @@
             <TextBlock Text="{Binding Path=Path}" Grid.Row="0" VerticalAlignment="Center" ></TextBlock>
             <ProgressBar Height="20" Value="{Binding Progress}" Maximum="{Binding Path=TotalProgress}">
             </ProgressBar>
+            <TextBlock Text="{Binding Path=Progress, StringFormat={}Read: {0}}"></TextBlock>
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
             <Button MinWidth="80" Margin="10" Command="{Binding Path=OpenFileCommand}" VerticalAlignment="Center">选择</Button>

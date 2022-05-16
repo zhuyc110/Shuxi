@@ -39,6 +39,7 @@ namespace Shuxi.Core.Services
             var files = directoryInfo.EnumerateFiles("*.dcm", SearchOption.AllDirectories);
 
             var dicoms = new List<DicomInfoData>();
+            var succeededDicomsCount = 0;
             var failedDicomsCount = 0;
 
             _logger.LogInformation($"Starts reading DICOM files from {directoryInfo.Name}.");
@@ -61,7 +62,7 @@ namespace Shuxi.Core.Services
                     };
 
                     dicoms.Add(one);
-                    progress.Report(dicoms.Count);
+                    progress.Report(++succeededDicomsCount);
 
                     if (dicoms.Count > 1000)
                     {
@@ -89,7 +90,7 @@ namespace Shuxi.Core.Services
                 _logger.LogWarning($"Failed to read {failedDicomsCount} files");
             }
 
-            _logger.LogInformation("Finished reading DICOM file infos.");
+            _logger.LogInformation($"Finished reading {succeededDicomsCount} DICOM file infos.");
         }
 
         private void EnsureValue(ref string value)
