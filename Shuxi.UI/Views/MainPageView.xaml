@@ -30,7 +30,7 @@
 
             <StackPanel Grid.Column="1" Margin="20">
                 <Label HorizontalAlignment="Left" VerticalAlignment="Center">值</Label>
-                <TextBox Height="20" Text="{Binding Path=ConditionValue}" ></TextBox>
+                <TextBox Height="20" Text="{Binding Path=ConditionValue, UpdateSourceTrigger=PropertyChanged}" ></TextBox>
             </StackPanel>
 
             <StackPanel Grid.Column="0" Margin="20">

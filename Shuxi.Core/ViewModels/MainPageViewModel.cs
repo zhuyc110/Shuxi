@@ -33,7 +33,7 @@ namespace Shuxi.Core.ViewModels
             get;
             private set;
         }
-        public ICommand ClearConditionCommand 
+        public ICommand ClearConditionCommand
         {
             get;
             private set;
@@ -67,17 +67,18 @@ namespace Shuxi.Core.ViewModels
             set => SetProperty(ref _data, value);
         }
 
-        public ICollection<string> ConditionSource 
-        { 
-            get 
+        public ICollection<string> ConditionSource
+        {
+            get
             {
-                return _conditionSource.Keys; 
-            } 
+                return _conditionSource.Keys;
+            }
         }
 
         public ICollectionView FilteredData
         {
-            get; private set;
+            get => _filteredData;
+            set => SetProperty(ref _filteredData, value);
         }
 
         public ObservableCollection<Condition> Conditions { get; set; }
@@ -93,13 +94,13 @@ namespace Shuxi.Core.ViewModels
             _conditionSource.Add(nameof(DicomInfoData.PerformedProcedureStepStartDate), PerformedProcedureStepStartDateFilter);
 
             _dicomInfoDataRepository = dicomInfoDataRepository;
+            _dicomInfoDataRepository.DataChanged += OnDataChanged;
             _navigationService = navigationService;
             AddConditionCommand = new MvxCommand(AddCondition, () => !string.IsNullOrWhiteSpace(ConditionValue) && !string.IsNullOrWhiteSpace(CurrentCondition));
             SearchCommand = new MvxCommand(ResetCondition);
             ResetCommand = new MvxAsyncCommand(GoToResetPage);
             ClearConditionCommand = new MvxCommand<Condition>(ClearCondition);
-            Data = new MvxObservableCollection<DicomInfoData>(_dicomInfoDataRepository.GetAll());
-            FilteredData = CollectionViewSource.GetDefaultView(Data);
+            ReadDicomFils();
             Conditions = new ObservableCollection<Condition>();
         }
 
@@ -108,9 +109,25 @@ namespace Shuxi.Core.ViewModels
             if (Data.Count == 0)
             {
                 await GoToResetPage().ConfigureAwait(false);
-                Data = new MvxObservableCollection<DicomInfoData>(_dicomInfoDataRepository.GetAll());
-                FilteredData = CollectionViewSource.GetDefaultView(Data);
+                ReadDicomFils();
             }
+        }
+
+        public override void ViewDestroy(bool viewFinishing = true)
+        {
+            _dicomInfoDataRepository.DataChanged -= OnDataChanged;
+            base.ViewDestroy(viewFinishing);
+        }
+
+        private void ReadDicomFils()
+        {
+            Data = new MvxObservableCollection<DicomInfoData>(_dicomInfoDataRepository.GetAll());
+            FilteredData = CollectionViewSource.GetDefaultView(Data);
+        }
+
+        private void OnDataChanged(object? sender, EventArgs e)
+        {
+            ReadDicomFils();
         }
 
         private void AddCondition()
@@ -180,19 +197,20 @@ namespace Shuxi.Core.ViewModels
 
         #endregion
 
-        private readonly IDicomInfoDataRepository? _dicomInfoDataRepository;
+        private readonly IDicomInfoDataRepository _dicomInfoDataRepository;
         private readonly IMvxNavigationService _navigationService;
         private string? _conditionValue;
         private string? _currentCondition;
         private readonly IDictionary<string, Func<string, Predicate<object>>> _conditionSource = new Dictionary<string, Func<string, Predicate<object>>>();
         private ObservableCollection<DicomInfoData> _data;
+        private ICollectionView _filteredData;
 
         public class Condition : MvxViewModel
         {
             public string PropertyName { get; set; }
 
-            public string DisplayValue 
-            { 
+            public string DisplayValue
+            {
                 get => _displayValue;
                 set => SetProperty(ref _displayValue, value);
             }

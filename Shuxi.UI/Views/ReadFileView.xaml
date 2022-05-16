@@ -16,7 +16,7 @@
         <StackPanel Margin="10" >
             <Label>将读入目标文件夹及子目录下所有DCM文件</Label>
             <TextBlock Text="{Binding Path=Path}" Grid.Row="0" VerticalAlignment="Center" ></TextBlock>
-            <ProgressBar Height="20" Value="{Binding Progress}" >
+            <ProgressBar Height="20" Value="{Binding Progress}" Maximum="{Binding Path=TotalProgress}">
             </ProgressBar>
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
