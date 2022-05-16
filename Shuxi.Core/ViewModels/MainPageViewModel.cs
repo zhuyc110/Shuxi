@@ -66,7 +66,11 @@ namespace Shuxi.Core.ViewModels
         {
             get
             {
-                return _conditionSource.Keys;
+                return new List<string> { 
+                    nameof(DicomInfoData.PerformedProcedureStepID), 
+                    nameof(DicomInfoData.PatientBirthDate), 
+                    nameof(DicomInfoData.PerformedProcedureStepStartDate) 
+                };
             }
         }
 
@@ -82,10 +86,6 @@ namespace Shuxi.Core.ViewModels
             IDicomInfoDataRepository dicomInfoDataRepository,
             IMvxNavigationService navigationService)
         {
-            _conditionSource.Add(nameof(DicomInfoData.PerformedProcedureStepID), PerformedProcedureStepIDFilter);
-            _conditionSource.Add(nameof(DicomInfoData.PatientBirthDate), PatientBirthDateFilter);
-            _conditionSource.Add(nameof(DicomInfoData.PerformedProcedureStepStartDate), PerformedProcedureStepStartDateFilter);
-
             _dicomInfoDataRepository = dicomInfoDataRepository;
             _navigationService = navigationService;
             AddConditionCommand = new MvxCommand(AddCondition, () => !string.IsNullOrWhiteSpace(ConditionValue) && !string.IsNullOrWhiteSpace(CurrentCondition));
@@ -127,7 +127,7 @@ namespace Shuxi.Core.ViewModels
 
         private void AddCondition()
         {
-            var condition = new Condition(CurrentCondition, ConditionValue, _conditionSource[CurrentCondition]);
+            var condition = new Condition(CurrentCondition, ConditionValue);
             var existingCondition = Conditions.FirstOrDefault(x => x.PropertyName == condition.PropertyName);
             if (existingCondition != null)
             {
@@ -165,30 +165,10 @@ namespace Shuxi.Core.ViewModels
             }
         }
 
-        #region Filters
-
-        private Predicate<object> PerformedProcedureStepIDFilter(string value)
-        {
-            return x => (x as DicomInfoData).PerformedProcedureStepID.Contains(value, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private Predicate<object> PatientBirthDateFilter(string value)
-        {
-            return x => (x as DicomInfoData).PatientBirthDate.ToShortDateString().Contains(value, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private Predicate<object> PerformedProcedureStepStartDateFilter(string value)
-        {
-            return x => (x as DicomInfoData).PerformedProcedureStepStartDate.ToShortDateString().Contains(value, StringComparison.OrdinalIgnoreCase);
-        }
-
-        #endregion
-
         private readonly IDicomInfoDataRepository _dicomInfoDataRepository;
         private readonly IMvxNavigationService _navigationService;
         private string? _conditionValue;
         private string? _currentCondition;
-        private readonly IDictionary<string, Func<string, Predicate<object>>> _conditionSource = new Dictionary<string, Func<string, Predicate<object>>>();
         private readonly ObservableCollection<DicomInfoData> _data = new ObservableCollection<DicomInfoData>();
         private readonly CollectionViewSource _dicomFilesViewSource = new CollectionViewSource();
     }

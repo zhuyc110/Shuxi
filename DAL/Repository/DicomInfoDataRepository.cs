@@ -36,7 +36,28 @@ namespace DAL.Repository
                 return _context.DicomInfoDatas.Skip(pageIndex).Take(pageSize);
             }
 
-            return _context.DicomInfoDatas.AsEnumerable().Where(x => conditions.Any(condition => condition.Predicate(x))).Skip(pageIndex).Take(pageSize);
+            IEnumerable<DicomInfoData> queryable = _context.DicomInfoDatas;
+
+            foreach (var condition in conditions)
+            {
+                switch (condition.PropertyName)
+                {
+                    case nameof(DicomInfoData.PerformedProcedureStepID):
+                        queryable = queryable.Where(x => x.PerformedProcedureStepID.Contains(condition.Value, System.StringComparison.OrdinalIgnoreCase));
+                        break;
+                    case nameof(DicomInfoData.PatientBirthDate):
+                        queryable = queryable.Where(x => x.PatientBirthDate.ToShortDateString().Contains(condition.Value, System.StringComparison.OrdinalIgnoreCase));
+                        break;
+                    case nameof(DicomInfoData.PerformedProcedureStepStartDate):
+                        queryable = queryable.Where(x => x.PerformedProcedureStepStartDate.ToShortDateString().Contains(condition.Value, System.StringComparison.OrdinalIgnoreCase));
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            return queryable.Skip(pageIndex).Take(pageSize);
         }
 
         public void Clear()
