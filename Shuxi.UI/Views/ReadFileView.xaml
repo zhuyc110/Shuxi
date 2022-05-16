@@ -7,7 +7,7 @@
         xmlns:viewmodels="clr-namespace:Shuxi.Core.ViewModels;assembly=Shuxi.Core" 
         d:DataContext="{d:DesignInstance Type=viewmodels:ReadFileViewModel}"
         mc:Ignorable="d"
-        Title="读入文件" Height="200" Width="400">
+        Title="读入文件" Height="200" Width="400" WindowStyle="ToolWindow">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="2*" />

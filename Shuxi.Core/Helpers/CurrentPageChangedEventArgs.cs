@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Shuxi.UI.Helpers
+namespace Shuxi.Core.Helpers
 {
     /// <summary>
     /// Provides context for the <see cref="PagingController.CurrentPageChanged"/> event.

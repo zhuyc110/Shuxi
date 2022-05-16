@@ -3,6 +3,7 @@ using DAL.Repository;
 using MvvmCross.Commands;
 using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
+using Shuxi.Core.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -61,12 +62,6 @@ namespace Shuxi.Core.ViewModels
             }
         }
 
-        public ObservableCollection<DicomInfoData> Data
-        {
-            get => _data;
-            set => SetProperty(ref _data, value);
-        }
-
         public ICollection<string> ConditionSource
         {
             get
@@ -77,11 +72,11 @@ namespace Shuxi.Core.ViewModels
 
         public ICollectionView FilteredData
         {
-            get => _filteredData;
-            set => SetProperty(ref _filteredData, value);
+            get => _dicomFilesViewSource.View;
         }
 
         public ObservableCollection<Condition> Conditions { get; set; }
+        public PagingController Pager { get; private set; }
 
         public MainPageViewModel(
             IDicomInfoDataRepository dicomInfoDataRepository,
@@ -92,40 +87,42 @@ namespace Shuxi.Core.ViewModels
             _conditionSource.Add(nameof(DicomInfoData.PerformedProcedureStepStartDate), PerformedProcedureStepStartDateFilter);
 
             _dicomInfoDataRepository = dicomInfoDataRepository;
-            _dicomInfoDataRepository.DataChanged += OnDataChanged;
             _navigationService = navigationService;
             AddConditionCommand = new MvxCommand(AddCondition, () => !string.IsNullOrWhiteSpace(ConditionValue) && !string.IsNullOrWhiteSpace(CurrentCondition));
             SearchCommand = new MvxCommand(ResetCondition);
             ResetCommand = new MvxAsyncCommand(GoToResetPage);
             ClearConditionCommand = new MvxCommand<Condition>(ClearCondition);
-            ReadDicomFiles();
+
             Conditions = new ObservableCollection<Condition>();
+            _dicomFilesViewSource.Source = _data;
+            UpdatePager();
+            UpdateDicomData();
         }
 
         public override async Task Initialize()
         {
-            if (Data.Count == 0)
+            if (_data.Count == 0)
             {
                 await GoToResetPage().ConfigureAwait(false);
-                ReadDicomFiles();
+                UpdatePager();
+                UpdateDicomData();
             }
+        }
+
+        private async Task GoToResetPage()
+        {
+            await _navigationService.Navigate<ReadFileViewModel>().ConfigureAwait(false);
         }
 
         public override void ViewDestroy(bool viewFinishing = true)
         {
-            _dicomInfoDataRepository.DataChanged -= OnDataChanged;
+            Pager.CurrentPageChanged -= OnPageChanged;
             base.ViewDestroy(viewFinishing);
         }
 
-        private void ReadDicomFiles()
+        private void OnPageChanged(object? sender, EventArgs e)
         {
-            Data = new MvxObservableCollection<DicomInfoData>(_dicomInfoDataRepository.GetAll());
-            FilteredData = CollectionViewSource.GetDefaultView(Data);
-        }
-
-        private void OnDataChanged(object? sender, EventArgs e)
-        {
-            ReadDicomFiles();
+            UpdateDicomData();
         }
 
         private void AddCondition()
@@ -137,36 +134,35 @@ namespace Shuxi.Core.ViewModels
                 Conditions.Remove(existingCondition);
             }
             Conditions.Add(condition);
-            FilteredData.Filter = BuildFilter();
-        }
-
-        private void ResetCondition()
-        {
-            Conditions.Clear();
-            FilteredData.Filter = null;
-        }
-
-        private async Task GoToResetPage()
-        {
-            await _navigationService.Navigate<ReadFileViewModel>().ConfigureAwait(false);
+            UpdateDicomData();
         }
 
         private void ClearCondition(Condition condition)
         {
             Conditions.Remove(condition);
-            FilteredData.Filter = BuildFilter();
+            UpdateDicomData();
         }
 
-        private Predicate<object>? BuildFilter()
+        private void ResetCondition()
         {
-            if (!Conditions.Any())
+            Conditions.Clear();
+            UpdateDicomData();
+        }
+
+        private void UpdatePager()
+        {
+            Pager = new PagingController(_dicomInfoDataRepository.Count());
+            Pager.CurrentPageChanged += OnPageChanged;
+        }
+
+        private void UpdateDicomData()
+        {
+            _data.Clear();
+            var data = _dicomInfoDataRepository.Get(Pager.CurrentPageStartIndex, Pager.PageSize, Conditions.ToArray());
+            foreach (var item in data)
             {
-                return null;
+                _data.Add(item);
             }
-
-            Predicate<object> result = x => Conditions.Any(condition => condition.Predicate(x));
-
-            return result;
         }
 
         #region Filters
@@ -193,28 +189,7 @@ namespace Shuxi.Core.ViewModels
         private string? _conditionValue;
         private string? _currentCondition;
         private readonly IDictionary<string, Func<string, Predicate<object>>> _conditionSource = new Dictionary<string, Func<string, Predicate<object>>>();
-        private ObservableCollection<DicomInfoData> _data;
-        private ICollectionView _filteredData;
-
-        public class Condition : MvxViewModel
-        {
-            public string PropertyName { get; set; }
-
-            public string DisplayValue
-            {
-                get => _displayValue;
-                set => SetProperty(ref _displayValue, value);
-            }
-            public Predicate<object> Predicate { get; set; }
-
-            public Condition(string propertyName, string conditionValue, Func<string, Predicate<object>> predicate)
-            {
-                PropertyName = propertyName;
-                DisplayValue = $"{propertyName}={conditionValue}";
-                Predicate = predicate(conditionValue);
-            }
-
-            private string _displayValue;
-        }
+        private readonly ObservableCollection<DicomInfoData> _data = new ObservableCollection<DicomInfoData>();
+        private readonly CollectionViewSource _dicomFilesViewSource = new CollectionViewSource();
     }
 }

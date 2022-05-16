@@ -1,5 +1,4 @@
 ﻿using DAL.Model;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,7 +6,6 @@ namespace DAL.Repository
 {
     internal class DicomInfoDataRepository : IDicomInfoDataRepository
     {
-        public event EventHandler DataChanged;
 
         public DicomInfoDataRepository(ShuxiContext context)
         {
@@ -24,8 +22,6 @@ namespace DAL.Repository
             _context.DicomInfoDatas.AddRange(dicomInfoDatas);
 
             _context.SaveChanges();
-
-            DataChanged?.Invoke(this, null);
         }
 
         public IQueryable<DicomInfoData> GetAll()
@@ -33,13 +29,21 @@ namespace DAL.Repository
             return _context.DicomInfoDatas;
         }
 
+        public IEnumerable<DicomInfoData> Get(int pageIndex, int pageSize, params Condition[] conditions)
+        {
+            if (conditions == null || conditions.Length == 0)
+            {
+                return _context.DicomInfoDatas.Skip(pageIndex).Take(pageSize);
+            }
+
+            return _context.DicomInfoDatas.AsEnumerable().Where(x => conditions.Any(condition => condition.Predicate(x))).Skip(pageIndex).Take(pageSize);
+        }
+
         public void Clear()
         {
             _context.DicomInfoDatas.RemoveRange(_context.DicomInfoDatas);
 
             _context.SaveChanges();
-
-            DataChanged?.Invoke(this, null);
         }
 
         private readonly ShuxiContext _context;

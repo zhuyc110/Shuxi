@@ -5,10 +5,15 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Shuxi.UI.Helpers
+namespace Shuxi.Core.Helpers
 {
     public class PagingController : MvxViewModel
     {
+        /// <summary>
+        /// Default page size.
+        /// </summary>
+        public const int DefaultPageSize = 50;
+
         /// <summary>
         /// Occurs when the value of <see cref="CurrentPage"/> changes.
         /// </summary>
@@ -169,7 +174,7 @@ namespace Shuxi.UI.Helpers
         /// </summary>
         /// <param name="itemCount">The item count.</param>
         /// <param name="pageSize">The size of each page.</param>
-        public PagingController(int itemCount, int pageSize)
+        public PagingController(int itemCount, int pageSize = DefaultPageSize)
         {
             Contract.Requires(itemCount >= 0);
             Contract.Requires(pageSize > 0);

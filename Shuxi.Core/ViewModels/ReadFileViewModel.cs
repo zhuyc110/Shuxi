@@ -54,7 +54,6 @@ namespace Shuxi.Core.ViewModels
 
         private void SelectFolder()
         {
-            _dicomInfoDataRepository.Clear();
             var openFileDialog = new CommonOpenFileDialog()
             {
                 Title = "Select a folder",
@@ -63,6 +62,7 @@ namespace Shuxi.Core.ViewModels
 
             if (openFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
+                _dicomInfoDataRepository.Clear();
                 Path = openFileDialog.FileName;
                 //TotalProgress = _dicomReader.PrepareProgress(Path);
                 TotalProgress = 1000;
@@ -77,7 +77,6 @@ namespace Shuxi.Core.ViewModels
                 var progress = new Progress<int>(ProgressHandle);
                 _dicomReader.ReadFiles(Path, progress);
                 _mvxNavigationService.Close(this);
-
             }).ConfigureAwait(false);
         }
 
