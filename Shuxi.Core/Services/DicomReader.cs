@@ -59,7 +59,8 @@ namespace Shuxi.Core.Services
                         PerformedProcedureStepID = performedProcedureStepID,
                         PatientBirthDate = patientBirthDate,
                         PerformedProcedureStepStartDate = procedureDate,
-                        FileName = fileInfo.Name
+                        FileName = fileInfo.Name,
+                        FullName = fileInfo.FullName
                     };
 
                     dicoms.Add(one);
@@ -68,7 +69,6 @@ namespace Shuxi.Core.Services
                     if (dicoms.Count >= 1000)
                     {
                         Persist(dicoms);
-                        dicoms.Clear();
                     }
                 }
                 catch (Exception e)
@@ -86,7 +86,6 @@ namespace Shuxi.Core.Services
                 _logger.LogWarning($"Failed to read {failedDicomsCount} files");
             }
 
-            _dicomInfoDataRepository.UpdateCountCache(succeededDicomsCount);
             _logger.LogInformation($"Finished reading {succeededDicomsCount} DICOM file infos.");
         }
 
@@ -104,6 +103,7 @@ namespace Shuxi.Core.Services
             {
                 _logger.LogInformation($"{succeded.Count} DICOM files have been read.");
                 _dicomInfoDataRepository.Add(succeded);
+                succeded.Clear();
             }
         }
 

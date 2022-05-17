@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-	         xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+             xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
              xmlns:viewModel="clr-namespace:Shuxi.Core.ViewModels;assembly=Shuxi.Core"
              xmlns:local="clr-namespace:Shuxi.UI.Views"
+             xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance viewModel:MainPageViewModel, IsDesignTimeCreatable=True}"
              d:DesignHeight="650" d:DesignWidth="800">
@@ -69,11 +70,27 @@
 
         <ListView Grid.Row="2" ItemsSource="{Binding Path=FilteredData}">
             <ListView.View>
-                <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="DICOM Information">
+                <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Click on file name to open it">
                     <GridViewColumn DisplayMemberBinding="{Binding Path=PerformedProcedureStepID}"  Header="Performed Procedure Step ID"  Width="180"/>
                     <GridViewColumn DisplayMemberBinding="{Binding Path=PatientBirthDate, StringFormat={}{0:yyyy/MM/dd}}"  Header="Patient Birth Date" Width="auto"/>
                     <GridViewColumn DisplayMemberBinding="{Binding Path=PerformedProcedureStepStartDate, StringFormat={}{0:yyyy/MM/dd}}"  Header="Performed Procedure Step Start Date" Width="auto"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=FileName}" Header="File name"  Width="auto"/>
+                    <GridViewColumn Header="File name"  Width="auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <Behaviors:Interaction.Triggers>
+                                        <Behaviors:EventTrigger EventName="MouseUp">
+                                            <Behaviors:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource AncestorType=ListView}, Path=DataContext.OpenPathCommand}" 
+                                                                           CommandParameter="{Binding}" />
+                                        </Behaviors:EventTrigger>
+                                    </Behaviors:Interaction.Triggers>
+                                    <TextBlock.Text>
+                                        <Binding Path="FileName"/>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

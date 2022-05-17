@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -39,6 +40,8 @@ namespace Shuxi.Core.ViewModels
             get;
             private set;
         }
+
+        public ICommand OpenPathCommand { get; private set; }
 
         #endregion
 
@@ -92,6 +95,7 @@ namespace Shuxi.Core.ViewModels
             SearchCommand = new MvxCommand(ResetCondition);
             ResetCommand = new MvxAsyncCommand(GoToResetPage);
             ClearConditionCommand = new MvxCommand<Condition>(ClearCondition);
+            OpenPathCommand = new MvxCommand<DicomInfoData>(OpenPath);
 
             Conditions = new ObservableCollection<Condition>();
             _dicomFilesViewSource.Source = _data;
@@ -109,15 +113,15 @@ namespace Shuxi.Core.ViewModels
             }
         }
 
-        private async Task GoToResetPage()
-        {
-            await _navigationService.Navigate<ReadFileViewModel>().ConfigureAwait(false);
-        }
-
         public override void ViewDestroy(bool viewFinishing = true)
         {
             Pager.CurrentPageChanged -= OnPageChanged;
             base.ViewDestroy(viewFinishing);
+        }
+
+        private async Task GoToResetPage()
+        {
+            await _navigationService.Navigate<ReadFileViewModel>().ConfigureAwait(false);
         }
 
         private void OnPageChanged(object? sender, EventArgs e)
@@ -163,6 +167,11 @@ namespace Shuxi.Core.ViewModels
             {
                 _data.Add(item);
             }
+        }
+
+        private void OpenPath(DicomInfoData data)
+        {
+            Process.Start("explorer.exe", $"/select, {data.FullName}");
         }
 
         private readonly IDicomInfoDataRepository _dicomInfoDataRepository;

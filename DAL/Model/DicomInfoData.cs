@@ -17,5 +17,8 @@ namespace DAL.Model
 
         [Required]
         public string FileName { get; set; }
+
+        [Required]
+        public string FullName { get; set; }
     }
 }

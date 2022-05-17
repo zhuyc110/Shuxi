@@ -12,27 +12,22 @@ namespace DAL.Repository
             _context = context;
         }
 
-        public void UpdateCountCache(int count)
-        {
-            _cachedCount = count;
-        }
-
         public int Count()
         {
-            if (_cachedCount == 0)
-            {
-                _cachedCount = _context.DicomInfoDatas.Count();
-            }
-            return _cachedCount;
+            var totalRecord = TryGetDicomGeneralInfos(DicomGeneralInfo.TotalCount, "0");
+
+            return int.Parse(totalRecord.Value);
         }
 
         public void Add(IList<DicomInfoData> dicomInfoDatas)
         {
              _context.DicomInfoDatas.AddRange(dicomInfoDatas);
 
-            _context.SaveChanges();
+            var totalRecord = TryGetDicomGeneralInfos(DicomGeneralInfo.TotalCount, "0", false);
+            totalRecord.Value = (int.Parse(totalRecord.Value) + dicomInfoDatas.Count).ToString();
+            _context.DicomGeneralInfos.Update(totalRecord);
 
-            _cachedCount += dicomInfoDatas.Count;
+            _context.SaveChanges();
         }
 
         public IQueryable<DicomInfoData> GetAll()
@@ -42,29 +37,27 @@ namespace DAL.Repository
 
         public IEnumerable<DicomInfoData> Get(int pageIndex, int pageSize, params Condition[] conditions)
         {
-            if (conditions == null || conditions.Length == 0)
-            {
-                return _context.DicomInfoDatas.Skip(pageIndex).Take(pageSize);
-            }
-
             IEnumerable<DicomInfoData> queryable = _context.DicomInfoDatas;
 
-            foreach (var condition in conditions)
+            if (conditions != null && conditions.Any())
             {
-                switch (condition.PropertyName)
+                foreach (var condition in conditions)
                 {
-                    case nameof(DicomInfoData.PerformedProcedureStepID):
-                        queryable = queryable.Where(x => x.PerformedProcedureStepID.Contains(condition.Value, System.StringComparison.OrdinalIgnoreCase));
-                        break;
-                    case nameof(DicomInfoData.PatientBirthDate):
-                        queryable = queryable.Where(x => x.PatientBirthDate.ToShortDateString().Contains(condition.Value, System.StringComparison.OrdinalIgnoreCase));
-                        break;
-                    case nameof(DicomInfoData.PerformedProcedureStepStartDate):
-                        queryable = queryable.Where(x => x.PerformedProcedureStepStartDate.ToShortDateString().Contains(condition.Value, System.StringComparison.OrdinalIgnoreCase));
-                        break;
+                    switch (condition.PropertyName)
+                    {
+                        case nameof(DicomInfoData.PerformedProcedureStepID):
+                            queryable = queryable.Where(x => x.PerformedProcedureStepID.Contains(condition.Value, System.StringComparison.OrdinalIgnoreCase));
+                            break;
+                        case nameof(DicomInfoData.PatientBirthDate):
+                            queryable = queryable.Where(x => x.PatientBirthDate.ToShortDateString().Contains(condition.Value, System.StringComparison.OrdinalIgnoreCase));
+                            break;
+                        case nameof(DicomInfoData.PerformedProcedureStepStartDate):
+                            queryable = queryable.Where(x => x.PerformedProcedureStepStartDate.ToShortDateString().Contains(condition.Value, System.StringComparison.OrdinalIgnoreCase));
+                            break;
 
-                    default:
-                        break;
+                        default:
+                            break;
+                    }
                 }
             }
 
@@ -75,12 +68,30 @@ namespace DAL.Repository
         {
             _context.DicomInfoDatas.RemoveRange(_context.DicomInfoDatas);
 
-            _context.SaveChanges();
+            var totalRecord = TryGetDicomGeneralInfos(DicomGeneralInfo.TotalCount, "0", false);
+            totalRecord.Value = "0";
+            _context.DicomGeneralInfos.Update(totalRecord);
 
-            _cachedCount = 0;
+            _context.SaveChanges();
         }
 
-        private int _cachedCount = 0;
+        private DicomGeneralInfo TryGetDicomGeneralInfos(string key, string defaultValue, bool saveChanges = true)
+        {
+            var totalRecord = _context.DicomGeneralInfos.FirstOrDefault(x => x.Key == key);
+
+            if (totalRecord == null)
+            {
+                totalRecord = _context.DicomGeneralInfos.Add(new DicomGeneralInfo { Key = key, Value = defaultValue }).Entity;
+
+                if (saveChanges)
+                {
+                    _context.SaveChanges();
+                }
+            }
+
+            return totalRecord;
+        }
+
         private readonly ShuxiContext _context;
     }
 }
