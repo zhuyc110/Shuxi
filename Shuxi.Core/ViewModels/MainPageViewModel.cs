@@ -79,7 +79,7 @@ namespace Shuxi.Core.ViewModels
             get => _dicomFilesViewSource.View;
         }
 
-        public ObservableCollection<Condition> Conditions { get; set; }
+        public ObservableCollection<Condition> Conditions { get; private set; }
         public PagingController Pager { get; private set; }
 
         public MainPageViewModel(

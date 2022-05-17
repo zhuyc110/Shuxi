@@ -2,8 +2,6 @@
 using MvvmCross.ViewModels;
 using System;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Windows.Input;
 
 namespace Shuxi.Core.Helpers
 {
@@ -23,25 +21,25 @@ namespace Shuxi.Core.Helpers
         /// Gets the command that, when executed, sets <see cref="CurrentPage"/> to 1.
         /// </summary>
         /// <value>The command that changes the current page.</value>
-        public ICommand GotoFirstPageCommand { get; private set; }
+        public IMvxCommand GotoFirstPageCommand { get; private set; }
 
         /// <summary>
         /// Gets the command that, when executed, decrements <see cref="CurrentPage"/> by 1.
         /// </summary>
         /// <value>The command that changes the current page.</value>
-        public ICommand GotoPreviousPageCommand { get; private set; }
+        public IMvxCommand GotoPreviousPageCommand { get; private set; }
 
         /// <summary>
         /// Gets the command that, when executed, increments <see cref="CurrentPage"/> by 1.
         /// </summary>
         /// <value>The command that changes the current page.</value>
-        public ICommand GotoNextPageCommand { get; private set; }
+        public IMvxCommand GotoNextPageCommand { get; private set; }
 
         /// <summary>
         /// Gets the command that, when executed, sets <see cref="CurrentPage"/> to <see cref="PageCount"/>.
         /// </summary>
         /// <value>The command that changes the current page.</value>
-        public ICommand GotoLastPageCommand { get; private set; }
+        public IMvxCommand GotoLastPageCommand { get; private set; }
 
         /// <summary>
         /// Gets or sets the total number of items to be divided into pages.
@@ -190,14 +188,14 @@ namespace Shuxi.Core.Helpers
         }
 
         /// <summary>
-        /// Calls RaiseCanExecuteChanged on any number of DelegateCommand instances.
+        /// Calls <see cref="IMvxCommand.RaiseCanExecuteChanged"/> on any number of <see cref="IMvxCommand"/> instances.
         /// </summary>
         /// <param name="commands">The commands.</param>
         [Pure]
-        private static void RaiseCanExecuteChanged(params ICommand[] commands)
+        private static void RaiseCanExecuteChanged(params IMvxCommand[] commands)
         {
             Contract.Requires(commands != null);
-            foreach (var command in commands.Cast<IMvxCommand>())
+            foreach (var command in commands)
             {
                 command.RaiseCanExecuteChanged();
             }
