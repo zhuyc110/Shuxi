@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Shuxi.Core.Services
 {
@@ -28,7 +29,7 @@ namespace Shuxi.Core.Services
             return directoryInfo.EnumerateFiles("*.dcm", SearchOption.AllDirectories).Count();
         }
 
-        public void ReadFiles(string directory, IProgress<int> progress)
+        public async Task ReadFiles(string directory, IProgress<int> progress)
         {
             if (!Directory.Exists(directory))
             {
@@ -47,7 +48,7 @@ namespace Shuxi.Core.Services
             {
                 try
                 {
-                    var dcm = DicomFile.Open(fileInfo.FullName, FileReadOption.SkipLargeTags);
+                    var dcm = await DicomFile.OpenAsync(fileInfo.FullName, FileReadOption.SkipLargeTags).ConfigureAwait(false);
                     dcm.Dataset.TryGetString(DicomTag.PerformedProcedureStepID, out var performedProcedureStepID);
                     EnsureValue(ref performedProcedureStepID);
                     var patientBirthDate = dcm.Dataset.GetDateTime(DicomTag.PatientBirthDate, DicomTag.PatientBirthTime);
@@ -64,10 +65,9 @@ namespace Shuxi.Core.Services
                     dicoms.Add(one);
                     progress.Report(++succeededDicomsCount);
 
-                    if (dicoms.Count > 1000)
+                    if (dicoms.Count >= 1000)
                     {
-                        _logger.LogInformation("1000 DICOM files have been read.");
-                        _dicomInfoDataRepository.Add(dicoms);
+                        Persist(dicoms);
                         dicoms.Clear();
                     }
                 }
@@ -79,17 +79,14 @@ namespace Shuxi.Core.Services
                 }
             }
 
-            if (dicoms.Any())
-            {
-                _logger.LogInformation($"{dicoms.Count} DICOM files have been read.");
-                _dicomInfoDataRepository.Add(dicoms);
-            }
+            Persist(dicoms);
 
             if (failedDicomsCount > 0)
             {
                 _logger.LogWarning($"Failed to read {failedDicomsCount} files");
             }
 
+            _dicomInfoDataRepository.UpdateCountCache(succeededDicomsCount);
             _logger.LogInformation($"Finished reading {succeededDicomsCount} DICOM file infos.");
         }
 
@@ -98,6 +95,15 @@ namespace Shuxi.Core.Services
             if (value == null)
             {
                 value = string.Empty;
+            }
+        }
+
+        private void Persist(IList<DicomInfoData> succeded)
+        {
+            if (succeded.Any())
+            {
+                _logger.LogInformation($"{succeded.Count} DICOM files have been read.");
+                _dicomInfoDataRepository.Add(succeded);
             }
         }
 

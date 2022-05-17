@@ -72,11 +72,11 @@ namespace Shuxi.Core.ViewModels
 
         private async Task Read()
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 var progress = new Progress<int>(ProgressHandle);
-                _dicomReader.ReadFiles(Path, progress);
-                _mvxNavigationService.Close(this);
+                await _dicomReader.ReadFiles(Path, progress).ConfigureAwait(false);
+                await _mvxNavigationService.Close(this).ConfigureAwait(false);
             }).ConfigureAwait(false);
         }
 

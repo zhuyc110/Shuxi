@@ -12,16 +12,27 @@ namespace DAL.Repository
             _context = context;
         }
 
-        public int Count()
+        public void UpdateCountCache(int count)
         {
-            return _context.DicomInfoDatas.Count();
+            _cachedCount = count;
         }
 
-        public void Add(IEnumerable<DicomInfoData> dicomInfoDatas)
+        public int Count()
         {
-            _context.DicomInfoDatas.AddRange(dicomInfoDatas);
+            if (_cachedCount == 0)
+            {
+                _cachedCount = _context.DicomInfoDatas.Count();
+            }
+            return _cachedCount;
+        }
+
+        public void Add(IList<DicomInfoData> dicomInfoDatas)
+        {
+             _context.DicomInfoDatas.AddRange(dicomInfoDatas);
 
             _context.SaveChanges();
+
+            _cachedCount += dicomInfoDatas.Count;
         }
 
         public IQueryable<DicomInfoData> GetAll()
@@ -65,8 +76,11 @@ namespace DAL.Repository
             _context.DicomInfoDatas.RemoveRange(_context.DicomInfoDatas);
 
             _context.SaveChanges();
+
+            _cachedCount = 0;
         }
 
+        private int _cachedCount = 0;
         private readonly ShuxiContext _context;
     }
 }
